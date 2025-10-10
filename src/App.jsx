@@ -36,18 +36,18 @@ function App() {
 
         const canvas = document.getElementById("fireworks");
         const ctx = canvas.getContext("2d");
-        let w = (canvas.width = window.innerWidth);
-        let h = (canvas.height = window.innerHeight);
         const fireworks = [];
+        let w, h, dpr;
 
         function resizeCanvas() {
-            const dpr = window.devicePixelRatio || 1;
-            canvas.width = window.innerWidth * dpr;
-            canvas.height = window.innerHeight * dpr;
-            ctx.scale(dpr, dpr);
+            dpr = window.devicePixelRatio || 1;
+            w = window.innerWidth;
+            h = window.innerHeight;
+            canvas.width = w * dpr;
+            canvas.height = h * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
         }
         resizeCanvas();
-
         window.addEventListener("resize", resizeCanvas);
 
         class Particle {
@@ -59,6 +59,7 @@ function App() {
                 this.speed = speed;
                 this.alpha = 1;
                 this.fadeRate = 1 / (60 * 3);
+                this.size = Math.random() + 0.4;
             }
             update() {
                 this.x += Math.cos(this.angle) * this.speed;
@@ -70,7 +71,7 @@ function App() {
                 ctx.globalAlpha = this.alpha;
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                 ctx.fill();
                 ctx.globalAlpha = 1;
             }
@@ -79,21 +80,35 @@ function App() {
         function createFirework() {
             const x = Math.random() * w;
             const y = Math.random() * h;
-            const color = `hsl(${Math.random() * 360},100%,50%)`;
-            for (let i = 0; i < 100; i++) {
-                const angle = (Math.PI * 2 * i) / 60;
-                const speed = Math.random() * 2;
+            const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            for (let i = 0; i < 120; i++) {
+                const angle = (Math.PI * 2 * i) / 80;
+                const speed = Math.random() * 2.5;
                 fireworks.push(new Particle(x, y, color, angle, speed));
             }
         }
 
-        function animate() {
+        let lastFireworkTime = 0;
+        const fireworkInterval = 500;
+
+        function animate(timestamp) {
             requestAnimationFrame(animate);
 
             ctx.globalCompositeOperation = "source-over";
             ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
             ctx.fillRect(0, 0, w, h);
+
             ctx.globalCompositeOperation = "lighter";
+
+            if (timestamp - lastFireworkTime > fireworkInterval) {
+                createFirework();
+                createFirework();
+                createFirework();
+                createFirework();
+                createFirework();
+                createFirework();
+                lastFireworkTime = timestamp;
+            }
 
             fireworks.forEach((p, i) => {
                 p.update();
@@ -102,24 +117,10 @@ function App() {
             });
         }
 
-
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-        setInterval(createFirework, 600);
-
         animate();
 
-        window.addEventListener("resize", () => {
-            w = canvas.width = window.innerWidth;
-            h = canvas.height = window.innerHeight;
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden) fireworks.length = 0;
         });
     }, []);
 
