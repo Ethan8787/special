@@ -40,6 +40,16 @@ function App() {
         let h = (canvas.height = window.innerHeight);
         const fireworks = [];
 
+        function resizeCanvas() {
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = window.innerWidth * dpr;
+            canvas.height = window.innerHeight * dpr;
+            ctx.scale(dpr, dpr);
+        }
+        resizeCanvas();
+
+        window.addEventListener("resize", resizeCanvas);
+
         class Particle {
             constructor(x, y, color, angle, speed) {
                 this.x = x;
@@ -48,7 +58,7 @@ function App() {
                 this.angle = angle;
                 this.speed = speed;
                 this.alpha = 1;
-                this.fadeRate = 1 / (60 * 12);
+                this.fadeRate = 1 / (60 * 3);
             }
             update() {
                 this.x += Math.cos(this.angle) * this.speed;
@@ -68,7 +78,7 @@ function App() {
 
         function createFirework() {
             const x = Math.random() * w;
-            const y = Math.random() * (h / 2);
+            const y = Math.random() * h;
             const color = `hsl(${Math.random() * 360},100%,50%)`;
             for (let i = 0; i < 100; i++) {
                 const angle = (Math.PI * 2 * i) / 60;
@@ -93,7 +103,18 @@ function App() {
         }
 
 
-        setInterval(createFirework, 800);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+        setInterval(createFirework, 600);
+
         animate();
 
         window.addEventListener("resize", () => {
