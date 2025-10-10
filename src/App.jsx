@@ -3,7 +3,6 @@ import "./App.css";
 
 function App() {
     useEffect(() => {
-        // === Typewriter ===
         const text = "Happy Birthday!";
         const target = document.getElementById("typewriter");
         let i = 0,
@@ -35,7 +34,6 @@ function App() {
         }
         type();
 
-        // === Fireworks ===
         const canvas = document.getElementById("fireworks");
         const ctx = canvas.getContext("2d");
         let w = (canvas.width = window.innerWidth);
@@ -50,11 +48,13 @@ function App() {
                 this.angle = angle;
                 this.speed = speed;
                 this.alpha = 1;
+                this.fadeRate = 1 / (60 * 12);
             }
             update() {
                 this.x += Math.cos(this.angle) * this.speed;
-                this.y += Math.sin(this.angle) * this.speed; // gravity
-                this.alpha -= 0;
+                this.y += Math.sin(this.angle) * this.speed + 0.05;
+                this.alpha -= this.fadeRate;
+                if (this.alpha < 0) this.alpha = 0;
             }
             draw() {
                 ctx.globalAlpha = this.alpha;
@@ -62,6 +62,7 @@ function App() {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, 2, 0, Math.PI * 2);
                 ctx.fill();
+                ctx.globalAlpha = 1;
             }
         }
 
@@ -78,16 +79,19 @@ function App() {
 
         function animate() {
             requestAnimationFrame(animate);
-            ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
-            ctx.globalCompositeOperation = "destination-out";
+
+            ctx.globalCompositeOperation = "source-over";
+            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
             ctx.fillRect(0, 0, w, h);
             ctx.globalCompositeOperation = "lighter";
+
             fireworks.forEach((p, i) => {
                 p.update();
                 p.draw();
                 if (p.alpha <= 0) fireworks.splice(i, 1);
             });
         }
+
 
         setInterval(createFirework, 800);
         animate();
