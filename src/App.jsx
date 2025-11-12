@@ -1,135 +1,142 @@
-import { useEffect } from "react";
-import "./App.css";
+import { useEffect, useState } from "react";
+import { Routes, Route, Link, useParams } from "react-router-dom";
 
-function App() {
-    useEffect(() => {
-        const text = "Happy Birthday!";
-        const target = document.getElementById("typewriter");
-        let i = 0,
-            typing = true;
-
-        function type() {
-            if (!target) return;
-            if (typing) {
-                if (i < text.length) {
-                    target.textContent += text.charAt(i);
-                    i++;
-                    setTimeout(type, 60);
-                } else {
-                    typing = false;
-                    setTimeout(type, 5000);
-                }
-            } else {
-                if (i > 1) {
-                    target.textContent = text.substring(0, i - 1);
-                    i--;
-                    setTimeout(type, 60);
-                } else {
-                    target.textContent = "";
-                    i = 0;
-                    typing = true;
-                    setTimeout(type, 500);
-                }
-            }
-        }
-        type();
-
-        const canvas = document.getElementById("fireworks");
-        const ctx = canvas.getContext("2d");
-        const fireworks = [];
-        let w, h, dpr;
-
-        function resizeCanvas() {
-            dpr = window.devicePixelRatio || 1;
-            w = window.innerWidth;
-            h = window.innerHeight;
-            canvas.width = w * dpr;
-            canvas.height = h * dpr;
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-        }
-        resizeCanvas();
-        window.addEventListener("resize", resizeCanvas);
-
-        class Particle {
-            constructor(x, y, color, angle, speed) {
-                this.x = x;
-                this.y = y;
-                this.color = color;
-                this.angle = angle;
-                this.speed = speed;
-                this.alpha = 1;
-                this.fadeRate = 1 / (60 * 3);
-                this.size = Math.random() + 0.4;
-            }
-            update() {
-                this.x += Math.cos(this.angle) * this.speed;
-                this.y += Math.sin(this.angle) * this.speed + 0.05;
-                this.alpha -= this.fadeRate;
-                if (this.alpha < 0) this.alpha = 0;
-            }
-            draw() {
-                ctx.globalAlpha = this.alpha;
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.globalAlpha = 1;
-            }
-        }
-
-        function createFirework() {
-            const x = Math.random() * w;
-            const y = Math.random() * h;
-            const color = `hsl(${Math.random() * 360}, 100%, 50%)`;
-            for (let i = 0; i < 120; i++) {
-                const angle = (Math.PI * 2 * i) / 80;
-                const speed = Math.random() * 2.5;
-                fireworks.push(new Particle(x, y, color, angle, speed));
-            }
-        }
-
-        let lastFireworkTime = 0;
-        const fireworkInterval = 500;
-
-        function animate(timestamp) {
-            requestAnimationFrame(animate);
-
-            ctx.globalCompositeOperation = "source-over";
-            ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-            ctx.fillRect(0, 0, w, h);
-
-            ctx.globalCompositeOperation = "lighter";
-
-            if (timestamp - lastFireworkTime > fireworkInterval) {
-                createFirework();
-                createFirework();
-                createFirework();
-                createFirework();
-                createFirework();
-                createFirework();
-                lastFireworkTime = timestamp;
-            }
-
-            fireworks.forEach((p, i) => {
-                p.update();
-                p.draw();
-                if (p.alpha <= 0) fireworks.splice(i, 1);
-            });
-        }
-
-        animate();
-
-        document.addEventListener("visibilitychange", () => {
-            if (document.hidden) fireworks.length = 0;
-        });
-    }, []);
-
+function Home() {
     return (
-        <div className="app">
-            <canvas id="fireworks"></canvas>
-            <h1 id="typewriter"></h1>
+        <div
+            style={{
+                height: "100vh",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
+                gap: "2rem",
+                background: "#0e0e0e",
+                fontFamily: "system-ui, sans-serif",
+            }}
+        >
+            <h1
+                style={{
+                    color: "#fff",
+                    fontSize: "2rem",
+                    fontWeight: "500",
+                    letterSpacing: "1px",
+                }}
+            >
+                Pagamo Files
+            </h1>
+            <div style={{ display: "flex", gap: "1.5rem" }}>
+                <Link
+                    to="/en"
+                    style={{
+                        border: "1px solid #444",
+                        color: "white",
+                        padding: "1rem 2.5rem",
+                        borderRadius: "12px",
+                        textDecoration: "none",
+                        fontSize: "1.1rem",
+                        background: "#151515",
+                        boxShadow: "0 3px 6px rgba(0,0,0,0.3)",
+                        transition: "all 0.25s ease",
+                    }}
+                    onMouseOver={(e) => (e.target.style.background = "#222")}
+                    onMouseOut={(e) => (e.target.style.background = "#151515")}
+                >
+                    英文
+                </Link>
+                <Link
+                    to="/zh"
+                    style={{
+                        border: "1px solid #444",
+                        color: "white",
+                        padding: "1rem 2.5rem",
+                        borderRadius: "12px",
+                        textDecoration: "none",
+                        fontSize: "1.1rem",
+                        background: "#151515",
+                        boxShadow: "0 3px 6px rgba(0,0,0,0.3)",
+                        transition: "all 0.25s ease",
+                    }}
+                    onMouseOver={(e) => (e.target.style.background = "#222")}
+                    onMouseOut={(e) => (e.target.style.background = "#151515")}
+                >
+                    國文
+                </Link>
+            </div>
         </div>
     );
 }
 
-export default App;
+function FileViewer() {
+    const { lang } = useParams();
+    const [content, setContent] = useState("");
+
+    useEffect(() => {
+        const filename = lang === "zh" ? "zh_pagamo.txt" : "en_pagamo.txt";
+        const path = `${import.meta.env.BASE_URL}${filename}`;
+
+        fetch(path)
+            .then((res) => res.arrayBuffer())
+            .then((buf) => new TextDecoder("utf-8").decode(buf))
+            .then(setContent)
+            .catch((err) => setContent(`無法讀取檔案: ${err.message}`));
+    }, [lang]);
+
+    return (
+        <div
+            style={{
+                minHeight: "100vh",
+                background: "#0e0e0e",
+                color: "white",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                padding: "2rem",
+                fontFamily: "system-ui, sans-serif",
+            }}
+        >
+            <Link
+                to="/"
+                style={{
+                    alignSelf: "flex-start",
+                    border: "1px solid #666",
+                    color: "#ccc",
+                    padding: "0.5rem 1rem",
+                    borderRadius: "8px",
+                    textDecoration: "none",
+                    marginBottom: "1.5rem",
+                    transition: "all 0.2s",
+                }}
+                onMouseOver={(e) => (e.target.style.background = "#333")}
+                onMouseOut={(e) => (e.target.style.background = "transparent")}
+            >
+                ← 返回
+            </Link>
+            <div
+                style={{
+                    border: "1px solid #444",
+                    borderRadius: "10px",
+                    padding: "1.5rem",
+                    background: "#151515",
+                    whiteSpace: "pre-wrap",
+                    lineHeight: "1.7",
+                    fontSize: "1rem",
+                    maxWidth: "800px",
+                    width: "100%",
+                    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.5)",
+                }}
+            >
+                {content}
+            </div>
+        </div>
+    );
+}
+
+export default function App() {
+    return (
+        <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/:lang" element={<FileViewer />} />
+        </Routes>
+    );
+}
