@@ -17,17 +17,17 @@ function Home() {
         >
             <h1
                 style={{
-                    color: "#fff",
+                    color: "rgba(255, 255, 255, 0)",
                     fontSize: "2rem",
                     fontWeight: "500",
                     letterSpacing: "1px",
                 }}
             >
-                Pagamo Files
+                ---------------------------------------------------------------------------------------------------------------------------------
             </h1>
             <div style={{ display: "flex", gap: "1.5rem" }}>
                 <Link
-                    to="/en"
+                    to="/en_pagamo.txt"
                     style={{
                         border: "1px solid #444",
                         color: "white",
@@ -42,10 +42,11 @@ function Home() {
                     onMouseOver={(e) => (e.target.style.background = "#222")}
                     onMouseOut={(e) => (e.target.style.background = "#151515")}
                 >
-                    英文
+                    英文丨閱讀素養
                 </Link>
+
                 <Link
-                    to="/zh"
+                    to="/zh_pagamo.txt"
                     style={{
                         border: "1px solid #444",
                         color: "white",
@@ -60,9 +61,19 @@ function Home() {
                     onMouseOver={(e) => (e.target.style.background = "#222")}
                     onMouseOut={(e) => (e.target.style.background = "#151515")}
                 >
-                    國文
+                    中文素養丨閱讀素養
                 </Link>
             </div>
+            <h1
+                style={{
+                    color: "rgba(255, 255, 255, 0)",
+                    fontSize: "2rem",
+                    fontWeight: "500",
+                    letterSpacing: "1px",
+                }}
+            >
+                ---------------------------------------------------------------------------------------------------------------------------------
+            </h1>
         </div>
     );
 }
