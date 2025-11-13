@@ -2,7 +2,7 @@ html, body, #root {
     height: 100%;
     margin: 0;
     display: flex;
-    justify-content: center;   /* horizontal center */
-    align-items: flex-start;   /* top alignment, can change to center if you want vertical centering too */
-    background-color: #111;
+    justify-content: center;
+    align-items: flex-start;
+    background-color: #151515;
 }
