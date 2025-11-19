@@ -21,7 +21,7 @@ function Home() {
         <h1
             style={{
                 color: "white",
-                fontSize: "3rem",
+                fontSize: "5rem",
                 fontWeight: "bold",
                 letterSpacing: "1px",
                 textAlign: "center",
@@ -41,10 +41,10 @@ function Home() {
                 style={{
                     border: "1px solid #444",
                     color: "white",
-                    padding: "1.5rem 3rem",
+                    padding: "1rem 1.5rem",
                     borderRadius: "12px",
                     textDecoration: "none",
-                    fontSize: "1.4rem",
+                    fontSize: "2rem",
                     background: "#151515",
                     width: "100%",
                     maxWidth: "380px",
@@ -62,10 +62,10 @@ function Home() {
                 style={{
                     border: "1px solid #444",
                     color: "white",
-                    padding: "1.5rem 3rem",
+                    padding: "1rem 1.5rem",
                     borderRadius: "12px",
                     textDecoration: "none",
-                    fontSize: "1.4rem",
+                    fontSize: "2rem",
                     background: "#151515",
                     width: "100%",
                     maxWidth: "380px",
@@ -118,8 +118,8 @@ function FileViewer() {
             style={{
                 alignSelf: "flex-start",
                 border: "1px solid #666",
-                color: "#ccc",
-                padding: "0.8rem 1.5rem",
+                color: "#fff",
+                padding: "0.5rem 1rem",
                 borderRadius: "8px",
                 textDecoration: "none",
                 marginBottom: "1.5rem",
@@ -128,7 +128,7 @@ function FileViewer() {
             onMouseOver={(e) => (e.currentTarget.style.background = "#333")}
             onMouseOut={(e) => (e.currentTarget.style.background = "transparent")}
         >
-            ← 返回
+            返回
         </Link>
 
         <div
