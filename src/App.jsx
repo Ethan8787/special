@@ -1,9 +1,28 @@
 import {useEffect, useState} from "react";
 import {Routes, Route, Link, useParams} from "react-router-dom";
 import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+
+const API_KEY = "api_data";
+const EXTERNAL_API_URL = "https://ethan8787.github.io/special/api.json";
 
 function Home() {
+    const linkStyle = {
+        border: "1px solid #444",
+        color: "white",
+        padding: "1rem 1.5rem",
+        borderRadius: "12px",
+        textDecoration: "none",
+        fontSize: "2rem",
+        background: "#151515",
+        width: "100%",
+        maxWidth: "380px",
+        textAlign: "center",
+        transition: "all 0.25s ease",
+    };
+
+    const onMouseOver = (e) => (e.currentTarget.style.background = "#222");
+    const onMouseOut = (e) => (e.currentTarget.style.background = "#151515");
+
     return (<div
         style={{
             minHeight: "100dvh",
@@ -38,42 +57,18 @@ function Home() {
         >
             <Link
                 to="/view/en_pagamo.txt"
-                style={{
-                    border: "1px solid #444",
-                    color: "white",
-                    padding: "1rem 1.5rem",
-                    borderRadius: "12px",
-                    textDecoration: "none",
-                    fontSize: "2rem",
-                    background: "#151515",
-                    width: "100%",
-                    maxWidth: "380px",
-                    textAlign: "center",
-                    transition: "all 0.25s ease",
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.background = "#222")}
-                onMouseOut={(e) => (e.currentTarget.style.background = "#151515")}
+                style={linkStyle}
+                onMouseOver={onMouseOver}
+                onMouseOut={onMouseOut}
             >
                 英文丨閱讀素養
             </Link>
 
             <Link
                 to="/view/zh_pagamo.txt"
-                style={{
-                    border: "1px solid #444",
-                    color: "white",
-                    padding: "1rem 1.5rem",
-                    borderRadius: "12px",
-                    textDecoration: "none",
-                    fontSize: "2rem",
-                    background: "#151515",
-                    width: "100%",
-                    maxWidth: "380px",
-                    textAlign: "center",
-                    transition: "all 0.25s ease",
-                }}
-                onMouseOver={(e) => (e.currentTarget.style.background = "#222")}
-                onMouseOut={(e) => (e.currentTarget.style.background = "#151515")}
+                style={linkStyle}
+                onMouseOver={onMouseOver}
+                onMouseOut={onMouseOut}
             >
                 中文素養丨閱讀素養
             </Link>
@@ -84,20 +79,63 @@ function Home() {
 function FileViewer() {
     const {file} = useParams();
     const [content, setContent] = useState("");
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const path = `${import.meta.env.BASE_URL}${file}`;
+        setIsLoading(true);
+        const isApiCall = file === API_KEY;
+        const path = isApiCall ? EXTERNAL_API_URL : `/${file}`;
 
         fetch(path)
-            .then((res) => res.arrayBuffer())
-            .then((buf) => {
-                if (typeof TextDecoder !== "undefined") {
-                    return new TextDecoder("utf-8").decode(buf);
+            .then((res) => {
+                if (!res.ok) {
+                    throw new Error(`HTTP Error! Status Code: ${res.status}`);
                 }
-                return String.fromCharCode(...new Uint8Array(buf));
+
+                if (isApiCall) {
+                    return res.text().then(text => {
+                        if (text.trim().toLowerCase().startsWith('<!doctype html>')) {
+                            return "Invalid API response: Received HTML content instead of JSON.";
+                        }
+
+                        let cleanedText = text.trim();
+                        if (cleanedText.startsWith('export default')) {
+                            cleanedText = cleanedText.substring('export default'.length).trim();
+                        }
+                        if (cleanedText.endsWith(';')) {
+                            cleanedText = cleanedText.substring(0, cleanedText.length - 1).trim();
+                        }
+
+                        try {
+                            const data = JSON.parse(cleanedText);
+                            return "```json\n" + JSON.stringify(data, null, 2) + "\n```";
+                        } catch (e) {
+                            return e.message;
+                        }
+                    });
+
+                } else {
+                    return res.arrayBuffer();
+                }
             })
-            .then(setContent)
-            .catch((err) => setContent(`無法讀取檔案: ${err.message}`));
+            .then((contentData) => {
+                let textContent;
+                if (typeof contentData === 'string') {
+                    textContent = contentData;
+                } else {
+                    if (typeof TextDecoder !== "undefined") {
+                        textContent = new TextDecoder("utf-8").decode(contentData);
+                    } else {
+                        textContent = String.fromCharCode(...new Uint8Array(contentData));
+                    }
+                }
+                setContent(textContent);
+                setIsLoading(false);
+            })
+            .catch((err) => {
+                setContent(`${err.message}`);
+                setIsLoading(false);
+            });
     }, [file]);
 
     return (<div
@@ -131,7 +169,9 @@ function FileViewer() {
             返回
         </Link>
 
-        <div
+        {isLoading ? (<div style={{color: '#00bfff', fontSize: '1.5rem', marginTop: '50px'}}>
+            Loading...
+        </div>) : (<div
             style={{
                 border: "1px solid #444",
                 borderRadius: "10px",
@@ -151,7 +191,6 @@ function FileViewer() {
             }}
         >
             <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
                 components={{
                     h1: (props) => (<h1
                         style={{
@@ -184,13 +223,13 @@ function FileViewer() {
                             background: "#111", padding: "0.8rem", borderRadius: "6px", overflowX: "auto",
                         }}
                     >
-                                    <code {...props} />
-                                </pre>),
+                                        <code {...props} />
+                                    </pre>),
                 }}
             >
                 {content}
             </ReactMarkdown>
-        </div>
+        </div>)}
     </div>);
 }
 
