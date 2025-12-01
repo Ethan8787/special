@@ -4,5 +4,35 @@ html, body, #root {
     display: flex;
     justify-content: center;
     align-items: flex-start;
-    background-color: #151515;
+    background: #000000;
+    color: white;
+    overflow-x: hidden;
+}
+
+body::before {
+    content: "";
+    position: fixed;
+    width: 600px;
+    height: 600px;
+    background: #000000;
+    top: -150px;
+    right: -150px;
+    filter: blur(80px);
+    animation: floatGlow 8s ease-in-out infinite alternate;
+    pointer-events: none;
+}
+
+@keyframes floatGlow {
+    from { transform: translate(0px, 0px); opacity: 0.6; }
+    to { transform: translate(-40px, 40px); opacity: 1; }
+}
+
+.card-glow {
+    box-shadow: 0 0 12px rgba(170, 30, 255, 0.55);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.card-glow:hover {
+    box-shadow: 0 0 20px rgba(165, 70, 255, 0.55);
+    transform: translateY(-3px);
 }
